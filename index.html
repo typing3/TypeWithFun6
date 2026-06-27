@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeWithFun // Neo-Brutalist Typing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Syne:wght@800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        /* --- NEO-BRUTALISM DESIGN SYSTEM --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --accent: #FFFF00; /* Yellow - Matches Logo and Engage Button */
+            --surface: #ffffff;
+            --text: #000000;
+            --border-width: 4px;
+            --shadow-offset: 8px;
+            --font-main: 'Space Grotesk', sans-serif;
+            --font-heading: 'Syne', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-size-typing: 32px; /* MOD 3: 32px Default */
+        }
+
+        /* MOD 8: Dark Mode Support */
+        body.dark-mode {
+            --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --surface: #222222;
+            --text: #ffffff;
+            --border-color: #ffffff;
+        }
+        body.dark-mode .brutal-card, 
+        body.dark-mode nav, 
+        body.dark-mode select {
+            border-color: #fff;
+            box-shadow: var(--shadow-offset) var(--shadow-offset) 0px #fff;
+        }
+        body.dark-mode .brutal-btn { border-color: #fff; box-shadow: 4px 4px 0px #fff; }
+        body.dark-mode .logo { border-color: #fff; box-shadow: 4px 4px 0px #fff; color: #000; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background 0.3s ease, transform 0.1s ease;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text);
+            overflow-x: hidden;
+            padding-bottom: 50px;
+        }
+
+        /* --- UTILITIES --- */
+        .brutal-card {
+            background: var(--surface);
+            border: var(--border-width) solid #000;
+            box-shadow: var(--shadow-offset) var(--shadow-offset) 0px #000;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .brutal-btn {
+            background: #fff;
+            border: var(--border-width) solid #000;
+            box-shadow: 4px 4px 0px #000;
+            padding: 12px 24px;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-family: var(--font-heading);
+            display: inline-block;
+            color: #000;
+        }
+
+        .brutal-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #000;
+            background: var(--accent);
+        }
+
+        .brutal-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #000;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--surface);
+            border-bottom: var(--border-width) solid #000;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* MOD 1: Logo matches Engage Button Yellow */
+        .logo {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            background: var(--accent);
+            padding: 5px 15px;
+            border: 3px solid #000;
+            color: #000;
+        }
+
+        .nav-links button {
+            background: none;
+            border: none;
+            font-family: var(--font-heading);
+            font-weight: 800;
+            margin-left: 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 5px;
+            color: var(--text);
+        }
+
+        .nav-links button.active {
+            background: var(--accent);
+            color: #000;
+            transform: rotate(-2deg);
+            border: 2px solid #000;
+        }
+
+        /* --- VIEW MANAGEMENT --- */
+        .view-container {
+            max-width: 1000px;
+            margin: 3rem auto;
+            padding: 0 20px;
+            display: none;
+        }
+
+        .view-container.active {
+            display: block;
+            animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* --- HOME PAGE CONFIG --- */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .config-item h3 {
+            margin-bottom: 1rem;
+            font-family: var(--font-heading);
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 3px solid #000;
+            font-family: var(--font-main);
+            font-weight: bold;
+            outline: none;
+            background: #fff;
+            color: #000;
+        }
+
+        /* --- ARENA (THE ENGINE) --- */
+        #stats-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-box {
+            background: var(--surface);
+            border: 3px solid #000;
+            padding: 10px 20px;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .stat-label { font-size: 0.8rem; text-transform: uppercase; font-weight: 800; }
+        .stat-value { font-size: 1.5rem; font-family: var(--font-mono); font-weight: 800; color: #ff3e00; }
+
+        /* MOD 6: Fixed Size Arena Box with Scrolling */
+        #typing-card {
+            height: 350px;
+            overflow-y: auto;
+            position: relative;
+            cursor: text;
+        }
+
+        #typing-area {
+            font-family: var(--font-mono);
+            font-size: var(--font-size-typing);
+            line-height: 1.6;
+            user-select: none;
+            word-wrap: break-word;
+        }
+
+        .char { color: #888; position: relative; }
+        .char.correct { color: var(--text); }
+        .char.incorrect { background: #ff4d4d; color: #fff; }
+        .char.current { 
+            background: var(--accent); 
+            color: #000;
+            border-bottom: 3px solid #000;
+        }
+
+        #hidden-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* --- RESULTS PAGE --- */
+        /* MOD 7: Prominent Retry Button at top */
+        .results-hero {
+            text-align: center;
+            background: #000;
+            color: #fff;
+            padding: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .big-wpm { font-size: 6rem; font-family: var(--font-heading); color: var(--accent); }
+
+        /* --- SETTINGS --- */
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 2px solid #eee;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">TYPEWITHFUN</div>
+        <div class="nav-links">
+            <button onclick="router('home')" id="nav-home" class="active">HOME</button>
+            <button onclick="router('arena')" id="nav-arena">ARENA</button>
+            <button onclick="router('results')" id="nav-results">RESULTS</button>
+            <button onclick="router('settings')" id="nav-settings">SETTINGS</button>
+        </div>
+    </nav>
+
+    <!-- HOME PAGE -->
+    <div id="home" class="view-container active">
+        <div class="brutal-card">
+            <h1 style="font-family: var(--font-heading); font-size: 3rem; margin-bottom: 1rem;">READY TO CRUSH IT?</h1>
+            <p>Select your training parameters below. Neo-Brutalism style typing for high-performance humans.</p>
+        </div>
+
+        <div class="config-grid">
+            <div class="brutal-card config-item">
+                <h3>🕹️ MODE</h3>
+                <select id="mode-select">
+                    <!-- MOD 2: Survival as Default -->
+                    <option value="survival" selected>Survival (3 Lives)</option>
+                    <option value="quick">Quick Test (60s)</option>
+                    <option value="practice">Practice Sandbox</option>
+                </select>
+            </div>
+            <div class="brutal-card config-item">
+                <h3>📚 CONTENT</h3>
+                <select id="content-select">
+                    <option value="words">Random Words</option>
+                    <option value="quotes">Famous Quotes</option>
+                    <option value="books">Book Excerpts</option>
+                    <option value="paragraphs">Paragraphs</option>
+                </select>
+            </div>
+            <div class="brutal-card config-item">
+                <h3>🔥 DIFFICULTY</h3>
+                <select id="diff-select">
+                    <option value="easy">Easy (Lowercase)</option>
+                    <option value="medium">Medium (+Punctuation)</option>
+                    <option value="hard">Hard (Complex)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <!-- MOD 1: Button color matches Logo -->
+            <button class="brutal-btn" style="font-size: 2rem; width: 100%; background: var(--accent);" onclick="startGame()">ENGAGE ARENA 🚀</button>
+        </div>
+    </div>
+
+    <!-- ARENA PAGE -->
+    <div id="arena" class="view-container">
+        <div id="stats-bar">
+            <div class="stat-box"><div class="stat-label">WPM</div><div id="live-wpm" class="stat-value">0</div></div>
+            <div class="stat-box"><div class="stat-label">Accuracy</div><div id="live-acc" class="stat-value">100%</div></div>
+            <div class="stat-box"><div class="stat-label">Status</div><div id="live-timer" class="stat-value">READY</div></div>
+        </div>
+
+        <!-- MOD 4 & 5: Arena Controls -->
+        <div style="margin-bottom: 10px; display: flex; gap: 10px;">
+            <button class="brutal-btn" style="padding: 5px 15px;" onclick="cycleArenaFontSize()">FONT SIZE: <span id="arena-font-label">32px</span></button>
+            <button class="brutal-btn" style="padding: 5px 15px;" id="correction-btn" onclick="toggleCorrection()">CORRECTION: ON</button>
+        </div>
+
+        <div class="brutal-card" id="typing-card" onclick="focusInput()">
+            <input type="text" id="hidden-input" autocomplete="off" autofocus>
+            <div id="typing-area">
+                <!-- Spans injected here -->
+            </div>
+        </div>
+        <button class="brutal-btn" style="background: #ff4d4d; color: white;" onclick="router('home')">ABORT MISSION 🛑</button>
+    </div>
+
+    <!-- RESULTS PAGE -->
+    <div id="results" class="view-container">
+        <!-- MOD 7: Prominent Retry Button -->
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <button class="brutal-btn" style="font-size: 2rem; width: 100%; background: var(--accent);" onclick="router('home')">RETRY SESSION / PLAY AGAIN 🔄</button>
+        </div>
+
+        <div class="brutal-card results-hero">
+            <h2 style="text-transform: uppercase;">Performance Report</h2>
+            <div class="big-wpm" id="res-wpm">0</div>
+            <p>WORDS PER MINUTE</p>
+        </div>
+        <div class="config-grid">
+            <div class="brutal-card">
+                <h3>Accuracy</h3>
+                <div class="stat-value" id="res-acc" style="font-size: 3rem;">0%</div>
+            </div>
+            <div class="brutal-card">
+                <h3>Errors</h3>
+                <div class="stat-value" id="res-err" style="font-size: 3rem;">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div id="settings" class="view-container">
+        <div class="brutal-card">
+            <h2 style="font-family: var(--font-heading); margin-bottom: 2rem;">VISUAL CONTROL MODULE</h2>
+            
+            <!-- MOD 8: Dark Mode Toggle -->
+            <div class="settings-row">
+                <label>Theme Mode</label>
+                <button class="brutal-btn" onclick="toggleDarkMode()">TOGGLE DARK/LIGHT</button>
+            </div>
+
+            <div class="settings-row">
+                <label>Default Font Size</label>
+                <select id="font-size-set" onchange="updateGlobalSettings()">
+                    <option value="16px">16px</option>
+                    <option value="24px">24px</option>
+                    <option value="32px" selected>32px (Default)</option>
+                    <option value="40px">40px</option>
+                </select>
+            </div>
+
+            <div class="settings-row">
+                <label>Color Theme</label>
+                <select id="theme-set" onchange="updateGlobalSettings()">
+                    <option value="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">Cosmic Indigo</option>
+                    <option value="linear-gradient(45deg, #ff9a9e 0%, #fad0c4 100%)">Cyberpunk Pink</option>
+                    <option value="linear-gradient(to right, #0ba360 0%, #3cba92 100%)">Industrial Matrix</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* --- MOCK BACKEND DATA ENGINE --- */
+        const TYPING_DB = {
+            words: {
+                easy: ["apple", "bread", "cloud", "dance", "earth", "fruit", "glass", "heart", "index", "juice"],
+                medium: ["keyboard", "mountain", "notebook", "paradise", "question", "resource", "standard", "together"],
+                hard: ["vulnerability", "synchronous", "pseudonym", "juxtaposition", "exacerbate", "phenomenon"]
+            },
+            quotes: {
+                easy: ["To be or not to be.", "All that glitters is not gold.", "Time is money."],
+                medium: ["Life is what happens when you're busy making other plans.", "The way to get started is to quit talking and begin doing."],
+                hard: ["Injustice anywhere is a threat to justice everywhere. We are caught in an inescapable network of mutuality.", "1.21 Gigawatts?! How could I have been so careless?"]
+            },
+            books: {
+                easy: ["Call me Ishmael.", "It was the best of times, it was the worst of times."],
+                medium: ["It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife."],
+                hard: ["The scar had not pained Harry for nineteen years. All was well. (2007) #Epilogue"]
+            },
+            paragraphs: {
+                easy: ["A quick brown fox jumps over the lazy dog. This is a simple test for your fingers."],
+                medium: ["The industrial revolution and its consequences have been a disaster for the human race. They have greatly increased the life-expectancy of those of us who live in 'advanced' countries."],
+                hard: ["The complexity of modern-day web development (React, Vue, Webpack) is staggering. However, pure CSS and Vanilla JS remain the bedrock of $100k+ engineering!"]
+            }
+        };
+
+        /* --- ENGINE STATE --- */
+        let state = {
+            currentMode: 'survival',
+            currentText: "",
+            currentIndex: 0,
+            mistakes: 0,
+            startTime: null,
+            timerInterval: null,
+            timeRemaining: 60,
+            isGameActive: false,
+            lives: 3,
+            allowCorrection: true,
+            arenaFontSize: 32
+        };
+
+        /* --- ROUTING & THEME --- */
+        function router(view) {
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
+            document.getElementById(view).classList.add('active');
+            document.getElementById('nav-' + view).classList.add('active');
+            if(view === 'arena' && !state.isGameActive) startGame();
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function updateGlobalSettings() {
+            const root = document.documentElement;
+            const size = document.getElementById('font-size-set').value;
+            root.style.setProperty('--font-size-typing', size);
+            root.style.setProperty('--bg-gradient', document.getElementById('theme-set').value);
+            state.arenaFontSize = parseInt(size);
+            document.getElementById('arena-font-label').innerText = size;
+        }
+
+        /* --- MOD 4 & 5: ARENA LOGIC --- */
+        function cycleArenaFontSize() {
+            const sizes = [16, 24, 32, 40];
+            let idx = sizes.indexOf(state.arenaFontSize);
+            state.arenaFontSize = sizes[(idx + 1) % sizes.length];
+            document.documentElement.style.setProperty('--font-size-typing', state.arenaFontSize + 'px');
+            document.getElementById('arena-font-label').innerText = state.arenaFontSize + 'px';
+        }
+
+        function toggleCorrection() {
+            state.allowCorrection = !state.allowCorrection;
+            document.getElementById('correction-btn').innerText = `CORRECTION: ${state.allowCorrection ? 'ON' : 'OFF'}`;
+            focusInput();
+        }
+
+        /* --- GAME LOGIC --- */
+        function startGame() {
+            const mode = document.getElementById('mode-select').value;
+            const content = document.getElementById('content-select').value;
+            const diff = document.getElementById('diff-select').value;
+
+            const pool = TYPING_DB[content][diff];
+            state.currentText = (content === 'words') ? 
+                Array(30).fill(0).map(() => pool[Math.floor(Math.random() * pool.length)]).join(" ") :
+                pool[Math.floor(Math.random() * pool.length)];
+
+            state.currentMode = mode;
+            state.currentIndex = 0;
+            state.mistakes = 0;
+            state.lives = 3;
+            state.timeRemaining = (mode === 'quick') ? 60 : 0;
+            state.isGameActive = true;
+            state.startTime = null;
+
+            const area = document.getElementById('typing-area');
+            area.innerHTML = state.currentText.split('').map((char, i) => `<span class="char" id="char-${i}">${char}</span>`).join('');
+            document.getElementById('char-0').classList.add('current');
+            
+            document.getElementById('live-wpm').innerText = "0";
+            document.getElementById('live-acc').innerText = "100%";
+            updateTimerDisplay();
+
+            clearInterval(state.timerInterval);
+            router('arena');
+            focusInput();
+        }
+
+        function focusInput() { document.getElementById('hidden-input').focus(); }
+
+        // MOD 5: Backspace handling
+        document.getElementById('hidden-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !state.allowCorrection) {
+                e.preventDefault();
+            }
+        });
+
+        document.getElementById('hidden-input').addEventListener('input', (e) => {
+            if (!state.isGameActive) return;
+            if (!state.startTime) state.startTime = new Date();
+
+            const inputVal = e.target.value;
+            const charToMatch = state.currentText[state.currentIndex];
+            const typedChar = inputVal[inputVal.length - 1];
+
+            const charSpan = document.getElementById(`char-${state.currentIndex}`);
+            charSpan.classList.remove('current');
+
+            if (typedChar === charToMatch) {
+                charSpan.classList.add('correct');
+            } else {
+                charSpan.classList.add('incorrect');
+                state.mistakes++;
+                if (state.currentMode === 'survival') {
+                    state.lives--;
+                    if (state.lives <= 0) endGame();
+                }
+            }
+
+            state.currentIndex++;
+            
+            if (state.currentIndex >= state.currentText.length) {
+                endGame();
+            } else {
+                const nextChar = document.getElementById(`char-${state.currentIndex}`);
+                nextChar.classList.add('current');
+                // MOD 6: Ensure current character is scrolled into view
+                nextChar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            e.target.value = ""; 
+            calculateStats();
+        });
+
+        state.timerInterval = setInterval(() => {
+            if (!state.isGameActive || !state.startTime) return;
+            if (state.currentMode === 'quick') {
+                state.timeRemaining--;
+                if (state.timeRemaining <= 0) endGame();
+            } else {
+                state.timeRemaining++;
+            }
+            updateTimerDisplay();
+        }, 1000);
+
+        function updateTimerDisplay() {
+            const label = state.currentMode === 'survival' ? `LIVES: ${state.lives}` : `TIME: ${state.timeRemaining}s`;
+            document.getElementById('live-timer').innerText = label;
+        }
+
+        function calculateStats() {
+            if(!state.startTime) return;
+            const secElapsed = (new Date() - state.startTime) / 1000;
+            const wpm = Math.round(((state.currentIndex / 5) / (secElapsed / 60))) || 0;
+            const acc = Math.round(((state.currentIndex - state.mistakes) / state.currentIndex) * 100) || 100;
+            document.getElementById('live-wpm').innerText = wpm;
+            document.getElementById('live-acc').innerText = acc + "%";
+            return { wpm, acc };
+        }
+
+        function endGame() {
+            state.isGameActive = false;
+            const finalStats = calculateStats();
+            document.getElementById('res-wpm').innerText = finalStats.wpm;
+            document.getElementById('res-acc').innerText = finalStats.acc + "%";
+            document.getElementById('res-err').innerText = state.mistakes;
+            router('results');
+        }
+
+        window.addEventListener('keydown', (e) => { if(e.key === 'Escape') router('home'); });
+    </script>
+</body>
+</html>
